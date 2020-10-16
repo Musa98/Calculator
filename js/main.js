@@ -8,6 +8,10 @@ let sqrtBtn = document.getElementById('sqrt');
 let memoryCurrentNumber = 0;
 let memoryNewNumber = false;
 let memoryPendingOperation = '';
+let FirstNumber = true;
+let FirstSqrt = true;//
+let checkError = false;
+
 
 for(let i=0;i<numbers.length;i++){
     let number = numbers[i];
@@ -34,28 +38,39 @@ for(let i=0;i<clearBtns.length;i++){
 
 decimalBtn.addEventListener('click', decimal);
 
-sqrtBtn.addEventListener('click', sqrt);
-
-
 resultBtn.addEventListener('click', result);
 
 function numberPress(number){
+    if (checkError === true){
+        checkError = false;
+    }
     if(memoryNewNumber){
         display.value = number;
         memoryNewNumber = false;
+        FirstSqrt = false;//
     } else{
         if(display.value === '0'){
             display.value = number;
+            FirstNumber = false;
+            FirstSqrt = false;//
         } else{
             display.value += number;
+            FirstNumber = false;
+            FirstSqrt = false;//
         }
     }
 };
 
 function operation(op){
     let localOperationMemory = display.value;
-
-    if(memoryNewNumber && memoryPendingOperation !== '='){
+    // Проверка на минус
+    if (checkError === true){
+        display.value = "Error input";
+    } else 
+    if((memoryPendingOperation === '*' || memoryPendingOperation === '+' || memoryPendingOperation === '/' || memoryPendingOperation === '-') && op === '-'){
+        display.value = op;
+        memoryNewNumber = false;
+    } else if(memoryNewNumber && memoryPendingOperation !== '='){
         display.value = memoryCurrentNumber;
     } else{
         memoryNewNumber = true;
@@ -70,18 +85,35 @@ function operation(op){
         } else if(memoryPendingOperation === '**'){
             memoryCurrentNumber = Math.pow(memoryCurrentNumber, localOperationMemory);
         } else if(op === '/*'){
+            if (localOperationMemory < 0){
+                checkError = true;
+            }
             memoryCurrentNumber = Math.sqrt(localOperationMemory);
             memoryNewNumber = false;
-            //display.value = memoryCurrentNumber;
-        } else {
+        } else if(memoryPendingOperation === '/*' && FirstSqrt === true){
+            memoryCurrentNumber = Math.sqrt(localOperationMemory);
+        }
+         else {
             memoryCurrentNumber = parseFloat(localOperationMemory);
+
         };
 
 
+        if(FirstNumber === true && op === '-'){
+            display.value = op;
+            memoryNewNumber = false;
+            FirstNumber === false;
+        }else if(checkError){
+            display.value = 'Error';
+        }
+        else {
+            display.value = +memoryCurrentNumber.toFixed(4);
+            memoryPendingOperation = op;
+            console.log(n);
+        };
 
-        display.value = memoryCurrentNumber;
-        memoryPendingOperation = op;
-    }
+        
+   }
 };
 
 function decimal(){
@@ -95,6 +127,9 @@ function decimal(){
         };
     };
     display.value = localDecimalMemory;
+    if (checkError === true){
+        display.value = "Error input";
+    } 
 };
 
 function clear(id){
@@ -103,17 +138,12 @@ function clear(id){
         memoryNewNumber = true;
     }else if (id === 'c'){
         display.value = '0';
-        memoryNewNumber = true;
+        memoryNewNumber = false;
         memoryCurrentNumber = 0;
         memoryPendingOperation = '';
+        FirstNumber = true;
     };
 };
 
-/*function sqrt(){
-    let localDecimalMemory = display.value;
-    let result = Math.sqrt(localDecimalMemory);
-    display.value = result;
-    memoryCurrentNumber = result;
-}8?*/
 
 
